@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatGPT로 창업 아이디어 검증하기 · 모두의창업</title>
+<style>
+  :root {
+    --bg:#FAF7F2; --bg-warm:#F2EBE1; --white:#FFFFFF;
+    --orange:#D97757; --orange-dk:#B45309; --orange-lt:#FEF3EC; --orange-mid:#FDBA74;
+    --text:#1C1917; --text-mid:#44403C; --text-sub:#78716C;
+    --border:#E5DDD5; --card-bg:#FFFFFF;
+    --tag-bg:#FED7AA; --tag-text:#92400E;
+    --green:#15803D; --green-lt:#F0FDF4;
+    --red:#B91C1C; --red-lt:#FEF2F2;
+    --blue:#1D4ED8; --blue-lt:#EFF6FF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:18px;line-height:1.7;}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(250,247,242,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;gap:0;height:56px;}
+  .nav-brand{font-weight:700;font-size:15px;color:var(--orange);margin-right:2rem;white-space:nowrap;text-decoration:none;letter-spacing:-0.02em;}
+  .nav-links{display:flex;gap:.2rem;overflow-x:auto;}
+  .nav-links a{text-decoration:none;color:var(--text-sub);font-size:14px;font-weight:500;padding:.35rem .85rem;border-radius:20px;transition:all .15s;white-space:nowrap;}
+  .nav-links a:hover{background:var(--orange-lt);color:var(--orange);}
+  .nav-kbd{margin-left:auto;font-size:12px;color:var(--text-sub);display:flex;align-items:center;gap:4px;white-space:nowrap;}
+  .nav-kbd kbd{background:var(--bg-warm);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11px;}
+
+  /* LAYOUT */
+  .container{max-width:1100px;margin:0 auto;padding:0 2rem;}
+
+  /* HERO */
+  .hero{padding:5rem 2rem 4rem;max-width:1100px;margin:0 auto;}
+  .hero-tag{display:inline-block;background:var(--orange-lt);color:var(--orange);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:1.5rem;}
+  .hero h1{font-size:clamp(36px,5vw,58px);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:1.2rem;}
+  .hero h1 em{font-style:normal;color:var(--orange);}
+  .hero-desc{font-size:20px;color:var(--text-mid);max-width:640px;line-height:1.6;margin-bottom:2.5rem;}
+  .hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;padding-top:2rem;border-top:1px solid var(--border);}
+  .stat{text-align:left;}
+  .stat-num{font-size:38px;font-weight:800;color:var(--orange);letter-spacing:-.04em;line-height:1;}
+  .stat-label{font-size:13px;color:var(--text-sub);margin-top:4px;}
+
+  /* SECTION */
+  section{padding:4rem 0;border-top:1px solid var(--border);}
+  section:first-of-type{border-top:none;}
+  .section-tag{display:flex;align-items:center;gap:10px;margin-bottom:1.2rem;}
+  .section-tag .part{background:var(--orange);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.05em;}
+  .section-tag .label{font-size:13px;color:var(--text-sub);font-weight:500;}
+  section h2{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:.8rem;}
+  .section-desc{font-size:18px;color:var(--text-mid);max-width:680px;margin-bottom:2.5rem;line-height:1.65;}
+
+  /* PART CARDS */
+  .part-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+  .part-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.5rem;}
+  .part-num{font-size:28px;font-weight:800;color:var(--orange);margin-bottom:.5rem;letter-spacing:-.04em;}
+  .part-title{font-size:18px;font-weight:700;margin-bottom:.5rem;}
+  .part-items{font-size:14px;color:var(--text-sub);line-height:1.7;}
+
+  /* NUMBERED ITEMS */
+  .num-list{display:flex;flex-direction:column;gap:1.2rem;}
+  .num-item{display:flex;gap:1rem;align-items:flex-start;}
+  .num-badge{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--orange);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:3px;}
+  .num-content h4{font-size:19px;font-weight:700;margin-bottom:4px;}
+  .num-content p{font-size:16px;color:var(--text-mid);line-height:1.65;}
+  .num-content .prompt-example{margin-top:8px;background:var(--bg-warm);border-left:3px solid var(--orange);padding:8px 14px;border-radius:0 8px 8px 0;font-size:14px;color:var(--text-mid);font-style:italic;}
+
+  /* CARDS */
+  .card-grid{display:grid;gap:1rem;}
+  .card-grid.cols2{grid-template-columns:repeat(2,1fr);}
+  .card-grid.cols3{grid-template-columns:repeat(3,1fr);}
+  .card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+  .card-icon{font-size:24px;margin-bottom:.6rem;}
+  .card h3{font-size:18px;font-weight:700;margin-bottom:.5rem;}
+  .card p{font-size:15px;color:var(--text-mid);line-height:1.65;}
+  .card .tag{display:inline-block;background:var(--tag-bg);color:var(--tag-text);font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:8px;margin-bottom:.6rem;}
+  .card .tag.green{background:#D1FAE5;color:#065F46;}
+  .card .tag.blue{background:#DBEAFE;color:#1E40AF;}
+  .card .tag.red{background:#FEE2E2;color:#991B1B;}
+  .card .tag.gray{background:#F3F4F6;color:#374151;}
+
+  /* INSIGHT BOX */
+  .insight{background:var(--orange-lt);border:1px solid #FDBA74;border-radius:14px;padding:1.4rem 1.6rem;margin:1.5rem 0;display:flex;gap:1rem;}
+  .insight-icon{font-size:22px;flex-shrink:0;margin-top:2px;}
+  .insight p{font-size:17px;font-weight:500;color:var(--text);line-height:1.65;}
+  .insight strong{color:var(--orange-dk);}
+
+  /* FRAMEWORK QUOTE — centered insight */
+  .fw-quote{text-align:center;padding:1.6rem 1rem;margin-bottom:2rem;position:relative;}
+  .fw-quote::before,.fw-quote::after{content:'';display:block;height:2px;background:linear-gradient(90deg,transparent,var(--orange-mid),transparent);}
+  .fw-quote::before{margin-bottom:1.4rem;}
+  .fw-quote::after{margin-top:1.4rem;}
+  .fw-quote-text{font-size:22px;font-style:italic;color:var(--text);line-height:1.6;max-width:760px;margin:0 auto;font-weight:500;}
+  .fw-quote-text::before{content:'"';color:var(--orange);font-size:36px;font-style:normal;line-height:0;vertical-align:-.3em;margin-right:4px;}
+  .fw-quote-text::after{content:'"';color:var(--orange);font-size:36px;font-style:normal;line-height:0;vertical-align:-.3em;margin-left:4px;}
+  .fw-quote-cite{margin-top:.8rem;font-size:14px;color:var(--text-sub);font-style:normal;}
+
+  /* FRAMEWORK HEADER */
+  .fw-header{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--border);}
+  .fw-badge{background:var(--orange);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:8px;white-space:nowrap;margin-top:5px;}
+  .fw-title-area h3{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px;}
+  .fw-title-area .fw-meta{font-size:14px;color:var(--text-sub);}
+
+  /* HAT GRID */
+  .hat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem;}
+  .hat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.3rem;display:flex;gap:.9rem;}
+  .hat-dot{width:20px;height:20px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+  .hat-content h4{font-size:16px;font-weight:700;margin-bottom:4px;}
+  .hat-content p{font-size:14px;color:var(--text-mid);line-height:1.6;}
+  .hat-content .q{font-size:13px;color:var(--orange-dk);font-style:italic;margin-top:6px;padding-left:8px;border-left:2px solid var(--orange-mid);}
+
+  /* BOARD TABLE */
+  .board-table{width:100%;border-collapse:collapse;}
+  .board-table th{background:var(--bg-warm);font-size:13px;font-weight:600;color:var(--text-sub);padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);}
+  .board-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:15px;vertical-align:top;line-height:1.6;}
+  .board-table tr:last-child td{border-bottom:none;}
+  .board-name{font-weight:700;font-size:17px;color:var(--text);}
+  .board-lens{font-size:12px;color:var(--orange);font-weight:600;margin-top:2px;}
+  .board-q{color:var(--text-mid);}
+
+  /* PROMPT BOX */
+  .prompt-box{background:#1C1917;border-radius:12px;padding:1.4rem 1.6rem;margin-top:1rem;position:relative;}
+  .prompt-box .prompt-label{font-size:11px;font-weight:600;color:#78716C;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+  .prompt-box code{font-family:"SF Mono","Fira Code",monospace;font-size:14px;color:#E5E7EB;line-height:1.8;display:block;white-space:pre-wrap;}
+  .prompt-box .ph{color:#FDBA74;}
+  .prompt-box .kw{color:#86EFAC;font-weight:600;}
+  .prompt-box .elem{color:#93C5FD;font-weight:700;}
+  .copy-btn{position:absolute;top:12px;right:12px;background:#374151;color:#D1D5DB;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+  .copy-btn:hover{background:#4B5563;color:#fff;}
+  .copy-btn.copied{background:#15803D;color:#fff;}
+
+  /* STEPS */
+  .steps{display:flex;flex-direction:column;gap:1rem;}
+  .step{display:flex;gap:1rem;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;}
+  .step-num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+  .step h4{font-size:18px;font-weight:700;margin-bottom:4px;}
+  .step p{font-size:15px;color:var(--text-mid);line-height:1.65;}
+
+  /* SUMMARY */
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+  .summary-card{background:var(--orange);border-radius:14px;padding:1.5rem;color:#fff;}
+  .summary-card h4{font-size:16px;font-weight:700;margin-bottom:.5rem;}
+  .summary-card p{font-size:14px;opacity:.88;line-height:1.6;}
+
+  /* TABLE */
+  .tbl{width:100%;border-collapse:collapse;font-size:15px;}
+  .tbl th{background:var(--bg-warm);padding:10px 14px;text-align:left;font-size:13px;font-weight:600;color:var(--text-sub);border-bottom:2px solid var(--border);}
+  .tbl td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6;}
+  .tbl tr:last-child td{border-bottom:none;}
+
+  /* FOOTER */
+  footer{background:var(--bg-warm);border-top:1px solid var(--border);padding:2.5rem 2rem;margin-top:4rem;text-align:center;color:var(--text-sub);font-size:14px;}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .part-grid,.card-grid.cols2,.card-grid.cols3,.hat-grid,.summary-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:32px;}
+    nav{padding:0 1rem;}
+  }
+  .hl{color:var(--orange);font-weight:700;}
+  .div-line{height:1px;background:var(--border);margin:2rem 0;}
+  .section-anchor{scroll-margin-top:70px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="#">🚀 모두의창업</a>
+  <div class="nav-links">
+    <a href="#overview">강의 구성</a>
+    <a href="#part1">1부·기초</a>
+    <a href="#formula">4요소 공식</a>
+    <a href="#part2">2부·프레임워크</a>
+    <a href="#part3">3부·프레임워크</a>
+    <a href="#practice">실습 가이드</a>
+    <a href="#summary">핵심 정리</a>
+  </div>
+  <div class="nav-kbd"><kbd>←</kbd><kbd>→</kbd> 섹션 이동</div>
+</nav>
+
+<div class="hero" id="hero">
+  <div class="hero-tag">ChatGPT 창업 강의</div>
+  <h1>ChatGPT로 창업 아이디어<br><em>검증</em>하기</h1>
+  <p class="hero-desc">세계 최고 창업자들의 7가지 검증 프레임워크를 ChatGPT 프롬프트로 즉시 실행합니다.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">검증 프레임워크</div></div>
+    
+    <div class="stat"><div class="stat-num">4+1</div><div class="stat-label">요소 프롬프트 공식</div></div>
+    <div class="stat"><div class="stat-num">즉시</div><div class="stat-label">ChatGPT로 실습</div></div>
+  </div>
+</div>
+
+<!-- 구성 -->
+<section id="overview" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">개요</span><span class="label">오늘의 구성</span></div>
+  <h2>3파트, 단계적으로 쌓는다</h2>
+  <p class="section-desc">프롬프트 기초를 익힌 후 7가지 프레임워크를 순서대로 실습합니다.</p>
+  <div class="part-grid">
+    <div class="part-card">
+      <div class="part-num">1부</div>
+      <div class="part-title">프롬프트 기초</div>
+      <div class="part-items">· 프롬프트 품질의 중요성<br>· 4요소 공식 (Role·Context·Task·Format)<br>· 4단계 강화 전략 (Zero-shot → CoT)<br>· 황금 법칙 5가지<br>· <strong>실습 ①</strong></div>
+    </div>
+    <div class="part-card">
+      <div class="part-num">2부</div>
+      <div class="part-title">프레임워크 1~3</div>
+      <div class="part-items">· 2-1 YC 검증법 (Garry Tan 방식)<br>· 2-2 6가지 생각 모자 (드 보노)<br>· 2-3 제1원칙 사고 (Elon Musk)<br>· <strong>실습 ②</strong></div>
+    </div>
+    <div class="part-card">
+      <div class="part-num">3부</div>
+      <div class="part-title">프레임워크 4~7</div>
+      <div class="part-items">· 3-1 가상 이사회 (구루 6인)<br>· 3-2 레드팀 전략 (CIA·Amazon)<br>· 3-3 피터 틸 역발상 (Zero to One)<br>· 3-4 Working Backwards (Bezos)<br>· <strong>실습 ③ + Q&amp;A</strong></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- 1부: 프롬프트 품질 -->
+<section id="part1" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">1부</span><span class="label">프롬프트 기초</span></div>
+  <h2>프롬프트 품질이 결과를 결정한다</h2>
+  <p class="section-desc">같은 ChatGPT, 같은 GPT-4를 써도 결과가 완전히 다른 이유는 단 하나입니다. 어떻게 물어보는가.</p>
+  <div class="card-grid cols2">
+    <div class="card">
+      <div class="card-icon">⚠️</div>
+      <div class="tag">나쁜 프롬프트</div>
+      <h3>"마케팅 전략 알려줘"</h3>
+      <p>AI가 일반적인 교과서 답변을 낸다. 읽어도 쓸 수 없는 내용. 시간 낭비.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">✅</div>
+      <div class="tag green">좋은 프롬프트</div>
+      <h3>역할 + 맥락 + 과제 + 형식</h3>
+      <p>"당신은 B2B SaaS 전문 CMO입니다. 우리 제품은 [X]입니다. 월 예산 300만원으로 인바운드 리드 50개를 만들 전략을 STEP별로 작성해줘."</p>
+    </div>
+  </div>
+  <div class="insight" style="margin-top:1.5rem;">
+    <div class="insight-icon">💡</div>
+    <p>AI는 세계 최고 컨설턴트다. 단, <strong>당신이 정밀하게 물어볼 때만.</strong> "그냥 봐줘"라고 하면 맥킨지도 쓸모없는 답을 낸다.</p>
+  </div>
+</div>
+</section>
+
+<!-- 4요소 공식 -->
+<section id="formula" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">1부</span><span class="label">4요소 + CoT 공식</span></div>
+  <h2>Role · Context · Task · Format · CoT</h2>
+  <p class="section-desc">이 5가지만 있으면 어떤 복잡한 분석도 AI에게 시킬 수 있습니다. 모든 프레임워크 프롬프트의 기반입니다.</p>
+  <div class="num-list">
+    <div class="num-item">
+      <div class="num-badge">1</div>
+      <div class="num-content">
+        <h4>역할 (Role) — AI에게 캐릭터를 부여한다</h4>
+        <p>AI의 관점과 전문성을 고정합니다. 역할이 없으면 AI는 교과서처럼 중립적으로 답합니다.</p>
+        <div class="prompt-example">"당신은 YC 파트너입니다" / "당신은 적대적 투자자입니다" / "당신은 목표 고객 페르소나입니다"</div>
+      </div>
+    </div>
+    <div class="num-item">
+      <div class="num-badge">2</div>
+      <div class="num-content">
+        <h4>맥락 (Context) — AI에게 현황을 알려준다</h4>
+        <p>아이디어, 타겟 고객, 현재 단계, 경쟁 환경 등 관련 정보를 압축해서 제공합니다.</p>
+        <div class="prompt-example">"내 아이디어: [한 줄 설명]. 타겟: [누구]. 단계: [MVP/아이디어/PMF]. 현재 상황: [있다면 추가]"</div>
+      </div>
+    </div>
+    <div class="num-item">
+      <div class="num-badge">3</div>
+      <div class="num-content">
+        <h4>과제 (Task) — AI에게 정확히 무엇을 할지 지시한다</h4>
+        <p>동사로 시작하고, 구체적으로 요청합니다. 모호한 동사(도와줘, 분석해줘)는 피합니다.</p>
+        <div class="prompt-example">"이 아이디어의 치명적 약점 3가지와 각각의 보완 방법을 분석해줘"</div>
+      </div>
+    </div>
+    <div class="num-item">
+      <div class="num-badge">4</div>
+      <div class="num-content">
+        <h4>출력 형식 (Format) — AI의 답변 형태를 지정한다</h4>
+        <p>형식을 지정하지 않으면 AI가 자의적으로 결정합니다. 번호 목록, 표, 마크다운 등을 명시합니다.</p>
+        <div class="prompt-example">"번호 목록으로 / 각 항목 2줄 이내 / 결론 한 줄로 마무리"</div>
+      </div>
+    </div>
+    <div class="num-item">
+      <div class="num-badge" style="background:var(--green);">5</div>
+      <div class="num-content">
+        <h4>CoT 트리거 — "단계별로 생각해줘"</h4>
+        <p>Chain of Thought. 이 한 마디가 AI의 추론 품질을 크게 올립니다. 복잡한 창업 분석에서는 항상 붙이세요.</p>
+        <div class="prompt-example">"단계별로 생각해줘. STEP 1: 문제 정의 → STEP 2: 원인 분석 → STEP 3: 해결책 제안"</div>
+      </div>
+    </div>
+  </div>
+  <div class="div-line"></div>
+  <h3 style="font-size:20px;font-weight:700;margin-bottom:1rem;">5요소 통합 예시 프롬프트</h3>
+  <div class="prompt-box">
+    <div class="prompt-label">복사해서 바로 사용하세요</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 YC(Y Combinator) 파트너입니다. 초기 스타트업의 아이디어를 냉철하게 평가하는 역할입니다.
+
+<span class="elem">[맥락 Context]</span> 내 아이디어: <span class="ph">[아이디어를 한 줄로 설명]</span>
+타겟 고객: <span class="ph">[누구]</span>
+현재 단계: 아이디어 단계, 아직 제품 없음
+경쟁사: <span class="ph">[알고 있다면]</span>
+
+<span class="elem">[과제 Task]</span> 다음 3가지를 분석해줘:
+① 이 아이디어에서 가장 치명적인 약점 3가지
+② 각 약점에 대한 구체적인 보완 방법
+③ YC가 이 아이디어를 거절할 가능성이 가장 높은 이유 1가지
+
+<span class="elem">[형식 Format]</span> 번호 목록. 각 항목은 2~3줄 이내. 마지막에 "결론: 한 줄" 추가.
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘.</code>
+  </div>
+</div>
+</section>
+
+<!-- 4단계 전략 -->
+<section id="strategy" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">1부</span><span class="label">4단계 강화 전략</span></div>
+  <h2>Zero-shot에서 Chain of Thought까지</h2>
+  <p class="section-desc">프롬프트에도 단계가 있습니다. 결과가 만족스럽지 않을 때 다음 단계로 올라가세요.</p>
+  <div class="card-grid cols2">
+    <div class="card"><div class="tag gray">STEP 1</div><h3>제로샷 (Zero-shot)</h3><p>예시 없이 바로 질문합니다. 빠른 탐색과 초안 생성에 적합. 결과가 너무 일반적이라면 다음 단계로.</p></div>
+    <div class="card"><div class="tag">STEP 2</div><h3>원샷 (One-shot)</h3><p>"다음 형식으로 작성해줘: [예시 1개]" — 출력 형식을 고정하고 싶을 때. 스타일 통일에 효과적.</p></div>
+    <div class="card"><div class="tag">STEP 3</div><h3>퓨샷 (Few-shot)</h3><p>"아래 3가지 예시처럼 분석해줘" — 일관된 패턴과 수준의 답변이 필요할 때.</p></div>
+    <div class="card"><div class="tag green">STEP 4</div><h3>Chain of Thought (CoT)</h3><p>"단계별로 생각해줘. STEP 1 → STEP 2 → STEP 3" — 복잡한 분석에 필수. 추론 품질이 크게 올라갑니다.</p></div>
+  </div>
+</div>
+</section>
+
+<!-- 황금 법칙 -->
+<section id="rules" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">1부</span><span class="label">황금 법칙 5가지</span></div>
+  <h2>ChatGPT 활용 핵심 원칙</h2>
+  <p class="section-desc">이 5가지를 지키면 전문가 수준의 결과를 얻을 수 있습니다.</p>
+  <div class="num-list">
+    <div class="num-item"><div class="num-badge" style="background:var(--orange-dk);">1</div><div class="num-content"><h4>완료 조건을 명시한다</h4><p>"3가지, 각 2줄 이내, 실행 가능한 것만" — 범위를 한정하면 밀도가 올라갑니다. "최대한 많이"는 금물.</p></div></div>
+    <div class="num-item"><div class="num-badge" style="background:var(--orange-dk);">2</div><div class="num-content"><h4>과정을 설계한다</h4><p>"STEP 1: 문제 정의 → STEP 2: 원인 분석 → STEP 3: 해결책 제안" — AI에게 흐름을 지정하세요.</p></div></div>
+    <div class="num-item"><div class="num-badge" style="background:var(--orange-dk);">3</div><div class="num-content"><h4>CoT 트리거를 붙인다</h4><p>"단계별로 생각해줘" 한 마디로 추론 품질이 크게 향상됩니다. 특히 창업 검증 분석에서 효과적.</p></div></div>
+    <div class="num-item"><div class="num-badge" style="background:var(--orange-dk);">4</div><div class="num-content"><h4>재작성을 요청한다</h4><p>"너무 일반적이다. 우리 업종에 맞게 더 날카롭게 다시 써줘" — AI와의 대화는 반복입니다. 첫 답변은 초안.</p></div></div>
+    <div class="num-item"><div class="num-badge" style="background:var(--orange-dk);">5</div><div class="num-content"><h4>잔소리를 제거한다</h4><p>"항상", "반드시", "꼭" 같은 수식어 반복을 피합니다. 짧고 명확한 프롬프트가 더 좋은 답변을 만듭니다.</p></div></div>
+  </div>
+</div>
+</section>
+
+<!-- 2부 인트로 -->
+<section id="part2" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">2부</span><span class="label">프레임워크 1~3</span></div>
+  <h2>YC · 6가지 모자 · 제1원칙</h2>
+  <p class="section-desc">초기 아이디어 검증에 가장 효과적인 3가지 프레임워크. 각각 다른 각도에서 아이디어를 뚫어봅니다.</p>
+</div>
+</section>
+
+<!-- YC -->
+<section id="yc" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge">2-1</div>
+    <div class="fw-title-area"><h3>YC 검증법</h3><div class="fw-meta">Y Combinator · Garry Tan · Airbnb · Stripe · OpenAI 배출</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">1,000명이 "괜찮네"라고 하는 것보다, 10명이 "이거 없으면 못 살아"라고 하는 게 낫다. 규모보다 강도. 이 프레임워크는 당신 아이디어가 진짜 문제를 건드리는지, 그리고 당신이 그 문제를 풀어야 할 이유가 있는지를 뚫어본다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 열광하는 초기 10명의 정체 · Why Now의 타이밍 근거 · Founder-Market Fit 확인</div>
+  </div>
+
+  <div class="card-grid cols3">
+    <div class="card"><div class="card-icon">🔥</div><div class="tag">핵심 기준</div><h3>10명의 열광</h3><p>규모보다 강도. 열광이 성장의 씨앗이다. "이거 없으면 못 살아"가 나와야 한다.</p></div>
+    <div class="card"><div class="card-icon">⏰</div><div class="tag">시장 타이밍</div><h3>Why Now?</h3><p>왜 지금 이 타이밍인가? 기술·규제·시장 변화가 이 문제를 지금 풀 수 있게 만들었는가?</p></div>
+    <div class="card"><div class="card-icon">🎯</div><div class="tag">창업자 적합성</div><h3>Why You?</h3><p>Founder-Market Fit. 당신이 이 문제를 가장 잘 풀 수 있는 이유. 업계 경험·독특한 인사이트·네트워크.</p></div>
+  </div>
+  <div class="insight"><div class="insight-icon">📌</div><p>YC 인터뷰 핵심: <strong>"당신의 첫 10명 고객은 지금 어디에 있는가? 그들과 이미 대화했는가?"</strong> 사람들이 이미 원하는 것을 찾아라.</p></div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">YC 검증법 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 YC(Y Combinator) 파트너이며 냉철한 아이디어 검증 전문가입니다.
+
+<span class="elem">[맥락 Context]</span> 내 아이디어: <span class="ph">[한 줄 설명]</span>
+타겟 고객: <span class="ph">[구체적으로]</span>
+현재 단계: <span class="ph">[아이디어/MVP/베타]</span>
+고객 인터뷰 현황: <span class="ph">[몇 명과 대화했는지]</span>
+
+<span class="elem">[과제 Task]</span> 다음 YC 기준으로 분석해줘:
+① 이 아이디어가 "10명의 열광"을 만들 수 있는가? 그 10명은 누구인가?
+② Why Now? 왜 지금 이 타이밍에만 가능한가?
+③ Why This Founder? 이 창업자가 이 문제를 풀어야 하는 이유
+④ Make Something People Want — 사람들이 이미 원하는 증거가 있는가?
+⑤ YC가 거절할 가능성이 가장 높은 이유 1가지
+
+<span class="elem">[형식 Format]</span> 각 항목 번호 목록. 각 3줄 이내. 마지막에 "YC 합격 가능성: 상/중/하 + 이유 한 줄" 추가.
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘.</code>
+  </div>
+</div>
+</section>
+
+<!-- 6가지 모자 -->
+<section id="hats" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge">2-2</div>
+    <div class="fw-title-area"><h3>6가지 생각 모자</h3><div class="fw-meta">에드워드 드 보노 · 창업자가 가장 회피하는 모자: ⚫ Black</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">창업자는 본능적으로 Yellow(낙관)와 Green(창의) 모자만 쓴다. 이 프레임워크는 당신이 회피하는 Black 모자를 강제로 쓰게 만들어, 실패 요인을 출시 전에 발견하게 한다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 감정·사실·리스크·기회를 6개 분리된 렌즈로 입체 분석 · 편향 제거 · 다음 행동 결정</div>
+  </div>
+
+  <div class="hat-grid">
+    <div class="hat-card"><div class="hat-dot" style="background:#E5E7EB;border:1px solid #D1D5DB;"></div><div class="hat-content"><h4>⚪ White — 사실·데이터</h4><p>감정이나 의견 없이 사실과 숫자만 본다.</p><div class="q">시장 규모 데이터는? 경쟁사 매출은? 고객 인터뷰 몇 건 했는가?</div></div></div>
+    <div class="hat-card"><div class="hat-dot" style="background:#EF4444;"></div><div class="hat-content"><h4>🔴 Red — 감정·직관</h4><p>논리 없이 감정과 직관을 그대로 표현한다.</p><div class="q">이 아이디어를 들었을 때 첫 느낌은? 고객이 감정적으로 끌릴 이유는?</div></div></div>
+    <div class="hat-card"><div class="hat-dot" style="background:#374151;"></div><div class="hat-content"><h4>⚫ Black — 리스크·비판 ⭐</h4><p>왜 안 되는지 모든 이유를 찾는다. 창업자가 가장 회피하지만 가장 중요한 모자.</p><div class="q">왜 실패하는가? 규제 장벽은? 경쟁사가 베끼면? 핵심 가정이 틀렸다면?</div></div></div>
+    <div class="hat-card"><div class="hat-dot" style="background:#F59E0B;"></div><div class="hat-content"><h4>🟡 Yellow — 기회·낙관</h4><p>가장 잘 풀렸을 때의 시나리오를 구체화한다.</p><div class="q">가장 잘 풀렸을 때 시나리오는? 이 시장이 10배 커진다면? 최고의 가능성은?</div></div></div>
+    <div class="hat-card"><div class="hat-dot" style="background:#10B981;"></div><div class="hat-content"><h4>🟢 Green — 창의·대안</h4><p>완전히 다른 방식, 피벗 가능성, 새 수익 모델을 탐색한다.</p><div class="q">완전히 다른 방식은? 피벗한다면 어디로? 전혀 다른 수익 모델은?</div></div></div>
+    <div class="hat-card"><div class="hat-dot" style="background:#3B82F6;"></div><div class="hat-content"><h4>🔵 Blue — 결론·다음 행동</h4><p>전체 논의를 정리하고 다음 행동을 결정한다.</p><div class="q">오늘 논의로 다음 행동 TOP 3는? 가장 중요한 리스크 해소 방법은?</div></div></div>
+  </div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">6가지 생각 모자 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 에드워드 드 보노의 6가지 생각 모자 기법 전문가입니다. 각 모자의 관점을 엄격하게 분리해서 분석합니다.
+
+<span class="elem">[맥락 Context]</span> 내 창업 아이디어: <span class="ph">[아이디어 설명]</span>
+타겟 고객: <span class="ph">[누구]</span>
+현재 가장 걱정되는 점: <span class="ph">[있다면]</span>
+
+<span class="elem">[과제 Task]</span> 6가지 모자를 순서대로 써서 이 아이디어를 분석해줘:
+⚪ White (사실): 현재 알려진 데이터와 사실만
+🔴 Red (감정): 논리 없이 첫 감정적 반응
+⚫ Black (비판): 왜 실패할 수 있는지 — 이것을 가장 상세하게, 최소 5가지
+🟡 Yellow (낙관): 가장 잘 될 경우 구체적 시나리오
+🟢 Green (창의): 완전히 다른 접근 방법 2가지
+🔵 Blue (결론): 최우선 검증 과제 3가지 + 이번 주 해야 할 행동 1가지
+
+<span class="elem">[형식 Format]</span> 각 모자는 별도 섹션. ⚫ Black은 번호 목록으로 최소 5가지. 🔵 Blue는 표로.
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 각 모자를 완전히 쓴 후 다음 모자로 넘어갈 것.</code>
+  </div>
+</div>
+</section>
+
+<!-- 제1원칙 -->
+<section id="first-principles" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge">2-3</div>
+    <div class="fw-title-area"><h3>제1원칙 사고</h3><div class="fw-meta">Elon Musk · SpaceX · Tesla · "로켓 재료비 = 완성품의 2%"</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">물리적으로 반드시 필요한 것과, 관행이 당연하게 만든 것을 구분하라. 배터리 팩의 원가는 80달러였지만 시장 가격은 600달러였다. 그 차이 520달러가 혁신의 공간이다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 업계 관행 중 실제로 불필요한 비용·구조 발견 · 원가 10분의 1 가능성 탐색 · 비즈니스 모델 재설계 기회</div>
+  </div>
+
+  <div class="card-grid cols2">
+    <div class="card"><h3>유추 사고 (기존 방식)</h3><p>"경쟁사가 이렇게 하니까 우리도 이렇게 한다" — 혁신 불가. 관행을 따르면 원가·구조 모두 동일해진다.</p><div style="margin-top:8px;font-size:14px;color:var(--red);">❌ "배터리 팩은 당연히 비싸다. 전부 비싸니까."</div></div>
+    <div class="card"><h3>제1원칙 사고 (Musk 방식)</h3><p>문제를 가장 기본 단위로 분해한다. "왜 600달러인가?" → 소재 원가 = 80달러. 나머지 520달러는 관행이 만든 가격.</p><div style="margin-top:8px;font-size:14px;color:var(--green);">✅ "이 비용이 물리적으로 반드시 필요한가?"</div></div>
+  </div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">제1원칙 사고 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 Elon Musk의 제1원칙 사고 방식을 적용하는 전략 컨설턴트입니다. "당연하다"는 말을 절대 허용하지 않습니다.
+
+<span class="elem">[맥락 Context]</span> 내 사업 아이디어: <span class="ph">[설명]</span>
+주요 비용 항목: <span class="ph">[가능하면 나열]</span>
+업계 일반적인 관행: <span class="ph">[알고 있다면]</span>
+
+<span class="elem">[과제 Task]</span> 다음을 분석해줘:
+① 이 업계에서 "당연하게" 여기는 비용이나 관행 3가지
+② 각각이 물리적으로 필요한지 vs 관행인지 구분 + 근거
+③ 제1원칙으로 재설계하면 원가를 10분의 1로 줄일 수 있는 항목
+④ "우리 업계에서 당연하지만 실제로는 필요 없는 것" 구체적으로
+⑤ 재설계 시 가장 먼저 공격해야 할 비용 구조 1가지
+
+<span class="elem">[형식 Format]</span> 각 항목 번호 목록. 가능하면 수치 포함. 마지막에 "혁신 기회 요약: 2줄".
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 각 주장에 근거를 붙일 것.</code>
+  </div>
+</div>
+</section>
+
+<!-- 3부 인트로 -->
+<section id="part3" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">3부</span><span class="label">프레임워크 4~7</span></div>
+  <h2>가상이사회 · 레드팀 · 피터 틸 · Working Backwards</h2>
+  <p class="section-desc">심화 검증 4가지. 아이디어를 다각도로 공격하고, 독점 포지션을 설계하고, 고객 경험에서 역방향으로 제품을 만드는 방법.</p>
+</div>
+</section>
+
+<!-- 가상이사회 -->
+<section id="board" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge">3-1</div>
+    <div class="fw-title-area"><h3>가상 이사회</h3><div class="fw-meta">세계 최고 창업자·투자자 6인의 관점을 동시에 적용</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">멘토는 한 명의 관점밖에 없다. 가상 이사회는 기술·독점·해자·네트워크·타이밍·고객 집착, 6개의 완전히 다른 렌즈로 당신의 아이디어를 동시에 뚫어본다. 가장 불편한 말이 가장 중요한 약점이다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 6개 관점의 사각지대 동시 발견 · 투자자가 가장 날카롭게 공격할 포인트 · 각 멘토가 가장 먼저 볼 것 예측</div>
+  </div>
+
+  <table class="board-table">
+    <thead><tr><th>멘토</th><th>관점 렌즈</th><th>핵심 질문</th></tr></thead>
+    <tbody>
+      <tr><td><div class="board-name">Elon Musk</div><div class="board-lens">기술 · 스케일 · 10x</div></td><td class="board-q">기술적 혁신과 규모 확장 가능성</td><td class="board-q">First Principles로 재설계하면? 10배 개선 가능한 지점은? 100만 명에게 확장될 수 있는가?</td></tr>
+      <tr><td><div class="board-name">Peter Thiel</div><div class="board-lens">독점 · 0→1</div></td><td class="board-q">경쟁 없는 카테고리 창조</td><td class="board-q">남들은 모르지만 당신이 아는 비밀은? 이 시장에서 독점할 수 있는가? 왜 10년 후에도 이 경쟁 우위가 유지되는가?</td></tr>
+      <tr><td><div class="board-name">Warren Buffett</div><div class="board-lens">경제적 해자 · 현금흐름</div></td><td class="board-q">지속 가능한 경쟁 우위</td><td class="board-q">5년 뒤에도 이 경쟁 우위가 유지되는가? 이익을 지켜주는 성(moat)이 있는가?</td></tr>
+      <tr><td><div class="board-name">Reid Hoffman</div><div class="board-lens">네트워크 효과 · 플랫폼</div></td><td class="board-q">규모에 따른 가치 증가</td><td class="board-q">사용자가 늘수록 제품 가치가 커지는가? 공급자-수요자 양면 시장인가?</td></tr>
+      <tr><td><div class="board-name">Sam Altman</div><div class="board-lens">타이밍 · 시장 규모 · AI</div></td><td class="board-q">타이밍과 미래 시장</td><td class="board-q">왜 지금인가? 이 시장은 10년 뒤 얼마나 커지는가? AI가 이 사업을 어떻게 변화시키는가?</td></tr>
+      <tr><td><div class="board-name">Paul Graham</div><div class="board-lens">단순함 · 고객 집착</div></td><td class="board-q">고객 이해와 단순성</td><td class="board-q">고객이 왜 이걸 쓰는가? 이탈 이유 TOP 3는? 가장 단순한 MVP는 무엇인가?</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight" style="margin-top:1.5rem;"><div class="insight-icon">🎯</div><p>가장 불편한 말 = 가장 중요한 약점. <strong>Thiel의 독점 질문과 Buffett의 해자 질문에 답 못하는 아이디어는 장기 생존이 어렵다.</strong></p></div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">가상 이사회 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 가상 이사회 퍼실리테이터입니다. 아래 6명의 관점을 깊이 이해하고, 각자의 목소리로 날카롭게 분석합니다.
+
+<span class="elem">[맥락 Context]</span> 내 아이디어: <span class="ph">[설명]</span>
+타겟 시장: <span class="ph">[시장 규모 포함]</span>
+현재 단계: <span class="ph">[아이디어/MVP/성장]</span>
+가장 자신 있는 강점: <span class="ph">[있다면]</span>
+
+<span class="elem">[과제 Task]</span> 각 멘토의 관점에서 핵심 질문 1가지 + 답변을 작성해줘:
+- Elon Musk (기술/스케일/10x 가능성)
+- Peter Thiel (독점/비밀/0→1)
+- Warren Buffett (경제적 해자/현금흐름)
+- Reid Hoffman (네트워크 효과/플랫폼)
+- Sam Altman (타이밍/시장 규모/AI 영향)
+- Paul Graham (고객 집착/단순함/MVP)
+마지막: 6인 중 이 아이디어를 가장 날카롭게 비판할 멘토 + 이유
+
+<span class="elem">[형식 Format]</span> 각 멘토는 별도 섹션. "질문:" + "답변:" 형식. 마지막에 "가장 치명적 약점: 한 줄".
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 각 멘토의 철학을 충실히 반영할 것.</code>
+  </div>
+</div>
+</section>
+
+<!-- 레드팀 -->
+<section id="redteam" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge" style="background:var(--red);">3-2</div>
+    <div class="fw-title-area"><h3>레드팀 전략</h3><div class="fw-meta">미 국방부 · CIA · Amazon · Google 공식 채택 · Pre-mortem 기법</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">자신의 아이디어를 가장 잘 죽일 수 있는 사람이, 그 아이디어를 가장 강하게 만들 수 있는 사람이다. 레드팀의 공격을 버텨낸 아이디어만이 시장에서 살아남는다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 출시 전 치명적 약점 발견 · Pre-mortem으로 실패 역추적 · 경쟁사 모방 시나리오 · 핵심 가정의 취약점 검증</div>
+  </div>
+
+  <div class="card-grid cols3">
+    <div class="card" style="border-color:#FECACA;"><div class="tag red">공격 질문 ①</div><h3>3년 내 망하는 이유</h3><p>이 사업이 3년 내에 실패하는 이유 TOP 3를 나열하라. 이유가 없다면 충분히 생각하지 않은 것이다.</p></div>
+    <div class="card" style="border-color:#FECACA;"><div class="tag red">공격 질문 ②</div><h3>최강 경쟁자 모방</h3><p>구글, 네이버, 카카오가 지금 당장 이 사업을 베낀다면? 당신에게 남는 것은 무엇인가?</p></div>
+    <div class="card" style="border-color:#FECACA;"><div class="tag red">공격 질문 ③</div><h3>핵심 가정 붕괴</h3><p>핵심 가정(고객이 돈을 낸다 / 기술이 된다 / 규제가 허용한다) 하나가 틀렸다면?</p></div>
+  </div>
+  <div class="insight" style="margin-top:1.2rem;"><div class="insight-icon">🛡️</div><p>레드팀 공격에도 살아남은 아이디어가 진짜 강하다. <strong>공격을 버텨냈다면, 그 방어 논리가 당신의 핵심 경쟁 우위가 된다.</strong></p></div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">레드팀 전략 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 레드팀 전문가입니다. 내 아이디어를 최대한 날카롭게 공격해야 합니다. 친절한 피드백은 금지입니다. 창업자의 편이 아닙니다.
+
+<span class="elem">[맥락 Context]</span> 내 아이디어: <span class="ph">[설명]</span>
+핵심 가정: <span class="ph">[이 사업이 성립하려면 반드시 맞아야 하는 것]</span>
+주요 경쟁사: <span class="ph">[알고 있다면]</span>
+가장 자신 있는 강점: <span class="ph">[있다면]</span>
+
+<span class="elem">[과제 Task]</span>
+① 이 사업이 3년 내 망하는 이유 TOP 5 (구체적으로, 표면적 이유 말고 근본 원인)
+② 구글/네이버/카카오가 당장 베낀다면 — 내가 살아남을 수 있는가? 모방 불가능한 요소는?
+③ 핵심 가정 3가지를 찾고, 각각이 틀렸을 때 시나리오
+④ Pre-mortem: "1년 뒤 실패했다고 가정. 가장 큰 실패 원인 1가지" + 역추적
+⑤ 치명적인 것(survive 불가) vs 관리 가능한 것 구분
+
+<span class="elem">[형식 Format]</span> 각 항목 번호 목록. ①은 최소 5가지. 마지막에 "생존 가능성 판단: 상/중/하 + 핵심 근거".
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 공격적으로, 그러나 논리적으로.</code>
+  </div>
+</div>
+</section>
+
+<!-- 피터 틸 -->
+<section id="thiel" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge">3-3</div>
+    <div class="fw-title-area"><h3>Peter Thiel 역발상</h3><div class="fw-meta">Zero to One · "경쟁은 패배다" · 독점 포지션 설계</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">경쟁은 패배자의 게임이다. 모든 훌륭한 사업은 독점으로 시작한다. 당신의 아이디어가 0→1인지 1→n인지를 구분하는 것이 창업의 첫 번째 질문이다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 아무도 모르는 비밀 발견 · 0→1 vs 1→n 판단 · 독점 포지션 로드맵 · 4가지 독점 요소 해당 여부</div>
+  </div>
+
+  <div class="card-grid cols2">
+    <div class="card"><h3>핵심 질문: 아무도 모르는 비밀</h3><p>"남들은 동의하지 않지만, 당신이 옳다고 믿는 것은 무엇인가?" — 비밀이 없다면 기존 경쟁자와 똑같은 게임을 하는 것이다.</p><div style="margin-top:10px;background:var(--orange-lt);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--orange-dk);">예: "사람들은 전기차를 못생겼다고 생각하지만 나는 멋있게 만들 수 있다" (Tesla)</div></div>
+    <div class="card"><h3>0 → 1 vs 1 → n</h3><p><strong style="color:var(--green);">0→1</strong>: 경쟁자가 없는 새 카테고리. 작은 시장 독점 후 확장.</p><p style="margin-top:8px;"><strong style="color:var(--red);">1→n</strong>: 이미 있는 것을 더 많이. 경쟁 = 가격 하락 = 이익 소멸.</p><div style="margin-top:10px;font-size:14px;color:var(--text-sub);">질문: "당신의 아이디어는 0→1인가, 1→n인가?"</div></div>
+  </div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">피터 틸 역발상 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 Peter Thiel의 Zero to One 관점으로 사업을 분석하는 전문가입니다. "경쟁은 패배"라는 철학으로 독점 가능성을 냉철하게 평가합니다.
+
+<span class="elem">[맥락 Context]</span> 내 아이디어: <span class="ph">[설명]</span>
+타겟 시장: <span class="ph">[규모 포함]</span>
+주요 경쟁사: <span class="ph">[있다면]</span>
+내가 생각하는 차별점: <span class="ph">[있다면]</span>
+
+<span class="elem">[과제 Task]</span>
+① "비밀 찾기": 이 시장에 대해 내가 알고 남들이 모르는 것은 무엇인가?
+② 0→1 판단: 이 아이디어는 새 카테고리를 만드는가, 기존 경쟁에 뛰어드는가?
+③ 독점 경로: 독점기술 / 네트워크효과 / 규모의경제 / 브랜드 중 이 사업에 해당하는 것 + 왜
+④ 작은 독점 → 확장 로드맵: 어떤 작은 시장을 먼저 독점하고 어디로 확장하는가?
+⑤ 비판: 왜 이것이 0→1이 아닐 수 있는지
+
+<span class="elem">[형식 Format]</span> 각 항목 번호 목록. ③은 4가지 체크리스트. 마지막에 "독점 가능성: 상/중/하 + 근거".
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. Thiel의 철학을 충실히 반영할 것.</code>
+  </div>
+</div>
+</section>
+
+<!-- Working Backwards -->
+<section id="working-backwards" class="section-anchor">
+<div class="container">
+  <div class="fw-header">
+    <div class="fw-badge">3-4</div>
+    <div class="fw-title-area"><h3>Working Backwards</h3><div class="fw-meta">Jeff Bezos · Amazon 내부 모든 신제품 의무 적용</div></div>
+  </div>
+
+  <div class="fw-quote">
+    <p class="fw-quote-text">보도자료를 쓰다가 막힌다는 것은, 당신의 제품이 아직 명확하지 않다는 신호다. Amazon에서 보도자료를 쓰다 "출시하지 말자"는 결론이 나온 제품이 수백 개다.</p>
+    <div class="fw-quote-cite">이 프레임워크로 얻는 인사이트: 제품 정의의 불명확한 부분 발견 · 고객 FAQ = 미해결 문제 목록 · 출시일 역방향 로드맵 · 막히는 곳 = 지금 당장 검증할 리스크</div>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div><h4>보도자료 먼저 작성</h4><p>출시 후 언론에 날 기사를 지금 써라. 1페이지, 고객 관점. 형식: "<strong class="hl">[고객명]이 [문제]를 해결하는 [제품명]을 출시했다.</strong>" 막히는 지점이 핵심 리스크다.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h4>고객 FAQ 5가지</h4><p>"고객이 가장 궁금해할 질문 5가지" — 지금 당장 답할 수 있는가? 답 못하는 것이 당신이 아직 해결 못한 문제다.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h4>내부 FAQ</h4><p>"어떻게 만들 것인가?" 팀이 "모르겠다"고 하는 항목 = 지금 당장 검증해야 할 리스크. 내부 FAQ의 공백이 리스크 맵이다.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div><h4>역방향 로드맵</h4><p>보도자료 → FAQ → 제품 스펙 → 기술 요구사항 → 개발 계획. 출시일에서 거꾸로 달력을 채운다.</p></div></div>
+  </div>
+  <div class="prompt-box" style="margin-top:1.5rem;">
+    <div class="prompt-label">Working Backwards 프롬프트 — 5요소 적용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할 Role]</span> 당신은 Jeff Bezos의 Working Backwards 방식 전문가입니다. Amazon 내부에서 수백 개의 신제품 보도자료를 작성하고 검토한 경험이 있습니다.
+
+<span class="elem">[맥락 Context]</span> 내 아이디어: <span class="ph">[설명]</span>
+타겟 고객: <span class="ph">[구체적으로]</span>
+핵심 가치 제안: <span class="ph">[고객이 얻는 것]</span>
+예상 출시 시점: <span class="ph">[있다면]</span>
+
+<span class="elem">[과제 Task]</span>
+① 보도자료 (1페이지):
+   - 헤드라인: [고객명]이 [문제]를 해결하는 [제품명] 출시
+   - 핵심 가치 2문장 / 고객 인용문(가상) / 제품 설명 3문장
+② 고객 FAQ 5가지 (가장 많이 받을 질문 + 답변)
+③ 내부 FAQ — 팀이 아직 모르는 것 3가지 (각각: 왜 중요한지 + 어떻게 검증할지)
+④ 역방향 로드맵: 출시 D-day에서 거꾸로 8주 계획
+⑤ 보도자료에서 막힌 부분 명시 (막힌 곳 = 핵심 리스크)
+
+<span class="elem">[형식 Format]</span> ①은 실제 보도자료 형식. ②③은 Q&A 형식. ④는 주차별 표. ⑤는 별도 섹션.
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 보도자료부터 완성한 후 나머지로 넘어갈 것.</code>
+  </div>
+</div>
+</section>
+
+<!-- 실습 -->
+<section id="practice" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">실습</span><span class="label">지금 바로 해보세요</span></div>
+  <h2>3단계 실습 가이드</h2>
+  <div class="card-grid cols3">
+    <div class="card" style="border-color:var(--orange-mid);"><div class="tag">실습 ① · 5분</div><h3>프롬프트 기초 실습</h3><p>1. 내 아이디어를 5요소로 정리<br>2. 나쁜 프롬프트 먼저 → 비교<br>3. 5요소 적용 → 재비교<br>4. CoT 추가 → 차이 확인</p></div>
+    <div class="card" style="border-color:var(--orange-mid);"><div class="tag">실습 ② · 7분</div><h3>프레임워크 1~3 실습</h3><p>1. YC · 6가지 모자 · 제1원칙 중 선택<br>2. 5요소 공식 적용한 프롬프트 입력<br>3. 새롭게 발견한 약점 1가지 메모<br>4. 새롭게 발견한 기회 1가지 메모</p></div>
+    <div class="card" style="border-color:var(--orange-mid);"><div class="tag">실습 ③ · 10분</div><h3>프레임워크 4~7 실습</h3><p>1. 가상이사회 / 레드팀 / Working Backwards 선택<br>2. 5요소로 프롬프트 구성 → 입력<br>3. 가장 날카로운 피드백 1가지 발표<br>4. 강의 전후로 달라진 점 공유</p></div>
+  </div>
+</div>
+</section>
+
+<!-- 핵심 정리 -->
+<section id="summary" class="section-anchor">
+<div class="container">
+  <div class="section-tag"><span class="part">정리</span><span class="label">오늘의 핵심</span></div>
+  <h2>이것만 기억하세요</h2>
+  <div class="summary-grid">
+    <div class="summary-card"><h4>프롬프트 품질 = 결과 품질</h4><p>역할·맥락·과제·형식·CoT. 이 5가지가 없으면 AI는 교과서처럼 답한다.</p></div>
+    <div class="summary-card"><h4>AI + 프레임워크 = 최강 조합</h4><p>세계 최고 창업자의 7가지 검증법을 프롬프트 하나로 즉시 실행. 멘토 없이 구루 6인의 피드백을 동시에.</p></div>
+    <div class="summary-card"><h4>불편한 말이 중요한 약점</h4><p>⚫ Black 모자, 레드팀 공격, 피터 틸의 비밀 질문 — 가장 대답하기 싫은 질문이 지금 당장 검증해야 할 리스크.</p></div>
+  </div>
+  <div class="div-line"></div>
+  <h3 style="font-size:20px;font-weight:700;margin-bottom:1.2rem;">7가지 프레임워크 한눈에 보기</h3>
+  <table class="tbl">
+    <thead><tr><th>번호</th><th>프레임워크</th><th>핵심 질문</th><th>언제 쓸까</th></tr></thead>
+    <tbody>
+      <tr><td><strong>2-1</strong></td><td><strong>YC 검증법</strong></td><td>10명의 열광이 있는가? Why Now? Why You?</td><td>아이디어 초기 검증</td></tr>
+      <tr><td><strong>2-2</strong></td><td><strong>6가지 생각 모자</strong></td><td>6개 관점으로 입체 분석 (⚫ Black이 핵심)</td><td>팀 브레인스토밍, 편향 제거</td></tr>
+      <tr><td><strong>2-3</strong></td><td><strong>제1원칙 사고</strong></td><td>이 비용/관행이 정말 필요한가? 10분의 1 가능성?</td><td>비즈니스 모델 혁신</td></tr>
+      <tr><td><strong>3-1</strong></td><td><strong>가상 이사회</strong></td><td>Musk·Thiel·Buffett·Hoffman·Altman·Graham의 관점</td><td>다각도 심층 검토</td></tr>
+      <tr><td><strong>3-2</strong></td><td><strong>레드팀 전략</strong></td><td>이 사업이 3년 내 망하는 이유? 경쟁자가 베끼면?</td><td>리스크 발굴, Pre-mortem</td></tr>
+      <tr><td><strong>3-3</strong></td><td><strong>피터 틸 역발상</strong></td><td>아무도 모르는 비밀은? 0→1인가 1→n인가?</td><td>독점 포지션 설계</td></tr>
+      <tr><td><strong>3-4</strong></td><td><strong>Working Backwards</strong></td><td>보도자료를 지금 쓸 수 있는가? 막히는 곳이 리스크</td><td>제품 정의, 출시 계획</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<footer>
+  <p style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;">모두의창업 · ChatGPT로 창업 아이디어 검증하기</p>
+  <p>강의 자료 배포용 · 5요소 프롬프트 템플릿 포함 · © 2026</p>
+</footer>
+
+<script>
+// 복사 버튼
+function copyPrompt(btn) {
+  const code = btn.closest('.prompt-box').querySelector('code');
+  const text = code.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ 복사됨';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '✓ 복사됨'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// 키보드 섹션 이동
+const sections = ['hero','overview','part1','formula','strategy','rules','part2','yc','hats','first-principles','part3','board','redteam','thiel','working-backwards','practice','summary'];
+let cur = 0;
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') { cur=Math.min(cur+1,sections.length-1); document.getElementById(sections[cur])?.scrollIntoView({behavior:'smooth',block:'start'}); }
+  else if (e.key==='ArrowLeft'||e.key==='ArrowUp') { cur=Math.max(cur-1,0); document.getElementById(sections[cur])?.scrollIntoView({behavior:'smooth',block:'start'}); }
+});
+const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting){const i=sections.indexOf(e.target.id);if(i>=0)cur=i;} }); },{threshold:.3});
+sections.forEach(id => { const el=document.getElementById(id); if(el) obs.observe(el); });
+</script>
+</body>
+</html>
