@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수강생 Q&amp;A · ChatGPT로 풀어보는 내 아이디어</title>
+<style>
+  :root {
+    --bg:#FAF7F2; --bg-warm:#F2EBE1; --white:#FFFFFF;
+    --orange:#D97757; --orange-dk:#B45309; --orange-lt:#FEF3EC; --orange-mid:#FDBA74;
+    --text:#1C1917; --text-mid:#44403C; --text-sub:#78716C;
+    --border:#E5DDD5; --card-bg:#FFFFFF;
+    --green:#15803D; --green-lt:#F0FDF4;
+    --red:#B91C1C; --red-lt:#FEF2F2;
+    --blue:#1D4ED8; --blue-lt:#EFF6FF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:17px;line-height:1.7;}
+
+  nav{position:sticky;top:0;z-index:100;background:rgba(250,247,242,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;gap:0;height:56px;}
+  .nav-brand{font-weight:700;font-size:15px;color:var(--orange);margin-right:1.5rem;white-space:nowrap;text-decoration:none;}
+  .nav-links{display:flex;gap:.2rem;overflow-x:auto;}
+  .nav-links a{text-decoration:none;color:var(--text-sub);font-size:13px;font-weight:500;padding:.3rem .75rem;border-radius:20px;transition:all .15s;white-space:nowrap;}
+  .nav-links a:hover{background:var(--orange-lt);color:var(--orange);}
+
+  .container{max-width:960px;margin:0 auto;padding:0 2rem;}
+
+  .hero{padding:4rem 2rem 3rem;max-width:960px;margin:0 auto;}
+  .hero-tag{display:inline-block;background:var(--orange-lt);color:var(--orange);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:1.2rem;}
+  .hero h1{font-size:clamp(28px,4vw,46px);font-weight:800;line-height:1.2;letter-spacing:-.03em;margin-bottom:1rem;}
+  .hero h1 em{font-style:normal;color:var(--orange);}
+  .hero-desc{font-size:17px;color:var(--text-mid);max-width:600px;line-height:1.65;}
+
+  .qna-section{padding:3rem 0;border-top:1px solid var(--border);}
+  .qna-section:first-of-type{border-top:none;}
+
+  .q-header{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.6rem;}
+  .q-num{flex-shrink:0;background:var(--orange);color:#fff;font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;margin-top:4px;white-space:nowrap;}
+  .q-title{font-size:clamp(20px,2.5vw,28px);font-weight:800;letter-spacing:-.02em;line-height:1.3;}
+  .q-topic{display:inline-block;background:var(--bg-warm);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:14px;color:var(--text-mid);margin-bottom:1.4rem;}
+
+  .answer-block{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.6rem;margin-bottom:1rem;}
+  .answer-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sub);margin-bottom:.8rem;}
+  .answer-block p{font-size:16px;color:var(--text-mid);line-height:1.7;margin-bottom:.6rem;}
+  .answer-block p:last-child{margin-bottom:0;}
+
+  .fw-tag{display:inline-block;background:var(--orange-lt);color:var(--orange-dk);font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px;margin-right:6px;margin-bottom:6px;}
+
+  .steps-mini{display:flex;flex-direction:column;gap:.6rem;margin-top:.8rem;}
+  .step-mini{display:flex;gap:.8rem;align-items:flex-start;}
+  .step-dot{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+  .step-mini p{font-size:15px;color:var(--text-mid);line-height:1.6;}
+
+  .prompt-box{background:#1C1917;border-radius:12px;padding:1.3rem 1.5rem;margin-top:1rem;position:relative;}
+  .prompt-box .prompt-label{font-size:11px;font-weight:600;color:#78716C;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+  .prompt-box code{font-family:"SF Mono","Fira Code",monospace;font-size:13px;color:#E5E7EB;line-height:1.8;display:block;white-space:pre-wrap;}
+  .prompt-box .ph{color:#FDBA74;}
+  .prompt-box .elem{color:#93C5FD;font-weight:700;}
+  .copy-btn{position:absolute;top:12px;right:12px;background:#374151;color:#D1D5DB;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;}
+  .copy-btn:hover{background:#4B5563;color:#fff;}
+  .copy-btn.copied{background:#15803D;color:#fff;}
+
+  .insight{background:var(--orange-lt);border:1px solid #FDBA74;border-radius:12px;padding:1.2rem 1.4rem;margin-top:1rem;display:flex;gap:.8rem;}
+  .insight-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+  .insight p{font-size:15px;color:var(--text);line-height:1.65;}
+  .insight strong{color:var(--orange-dk);}
+
+  .tag-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;}
+
+  footer{background:var(--bg-warm);border-top:1px solid var(--border);padding:2rem;margin-top:4rem;text-align:center;color:var(--text-sub);font-size:13px;}
+
+  @media(max-width:768px){
+    .hero h1{font-size:26px;}
+    nav{padding:0 1rem;}
+    .container{padding:0 1rem;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="#">🚀 모두의창업</a>
+  <div class="nav-links">
+    <a href="#q1">졸음운전</a>
+    <a href="#q2">시장성 검증</a>
+    <a href="#q3">타겟 세그멘테이션</a>
+    <a href="#q4">동영상 교육</a>
+    <a href="#q5">반려묘 치료제</a>
+    <a href="#q6">절차 미준수</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">수강생 Q&amp;A</div>
+  <h1>우리 아이디어,<br><em>ChatGPT로</em> 어떻게 검증할까?</h1>
+  <p class="hero-desc">수강생들이 직접 제출한 6가지 문제·아이디어를 강의 프레임워크로 풀어봅니다. 내 상황에 맞는 섹션을 찾아 프롬프트를 바로 사용해보세요.</p>
+</div>
+
+<!-- Q1: 졸음운전 -->
+<section id="q1" class="qna-section">
+<div class="container">
+  <div class="q-header">
+    <span class="q-num">Q 1</span>
+    <h2 class="q-title">생계형 운전자의 졸음운전 문제를 해결하고 싶어요</h2>
+  </div>
+  <div class="q-topic">🚌 아이디어: 졸음운전 감지·예방 솔루션 / 타겟: 버스·화물·택시 기사</div>
+
+  <div class="tag-row">
+    <span class="fw-tag">YC 검증법</span>
+    <span class="fw-tag">레드팀 전략</span>
+    <span class="fw-tag">제1원칙 사고</span>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">🔍 이 아이디어의 핵심 포인트</div>
+    <p>졸음운전은 명확한 고통(사망 사고)이 있는 실제 문제입니다. 생계형 운전자는 피로해도 쉬기 어렵고, 사고 발생 시 생계 자체가 끊깁니다. 이 문제는 "이미 존재하는 고통"이기 때문에 YC식 검증에 유리합니다.</p>
+    <p><strong>먼저 답해야 할 질문</strong>: 현재 시장에 경쟁 제품(모빌아이, 졸음방지 앱 등)이 있는데, 내 솔루션의 차별점은 무엇인가? 생계형 운전자가 직접 구매하는가, 회사(운수사)가 구매하는가?</p>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">📋 추천 검증 순서</div>
+    <div class="steps-mini">
+      <div class="step-mini"><div class="step-dot">1</div><p><strong>YC 검증 먼저</strong> — "이미 돈을 쓰고 있는 사람이 있는가?" 운수회사나 기사가 현재 어떤 해결책을 쓰는지 인터뷰.</p></div>
+      <div class="step-mini"><div class="step-dot">2</div><p><strong>제1원칙으로 원가 분석</strong> — 기존 솔루션(30~100만원)의 원가를 분해. "왜 비싼가? 어디를 줄일 수 있나?"</p></div>
+      <div class="step-mini"><div class="step-dot">3</div><p><strong>레드팀으로 리스크 점검</strong> — 규제 이슈, 책임 소재(사고 발생 시 제품 책임?), 경쟁사 모방 등.</p></div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">YC 검증법 프롬프트 — 바로 복사해서 사용</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할]</span> 당신은 YC 파트너입니다. 하드웨어·안전 스타트업을 전문으로 검토합니다.
+
+<span class="elem">[맥락]</span> 내 아이디어: 생계형 운전자(버스·화물·택시) 졸음운전 감지·예방 솔루션
+타겟 고객: 운수회사 or 개인 운전 기사 (아직 미정)
+현재 단계: 아이디어 단계, 기사 인터뷰 0명
+경쟁사: 모빌아이, 스마트폰 앱 기반 졸음 감지
+
+<span class="elem">[과제]</span>
+① 이 아이디어의 핵심 고객(운수회사 vs 기사 개인)은 누구인가? 둘의 구매 동기와 결제 의사 차이
+② Why Now? 지금 이 타이밍에 왜 가능한가? (AI, 센서 원가, 규제 변화 등)
+③ 10명의 열광을 만들 첫 고객군은 어디에 있나?
+④ 이 아이디어를 거절할 가능성이 높은 이유 1가지
+⑤ 지금 당장 해야 할 고객 인터뷰 질문 5가지
+
+<span class="elem">[형식]</span> 번호 목록. 각 3줄 이내. 마지막에 "YC 관점 총평: 한 줄"
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘.</code>
+  </div>
+
+  <div class="insight">
+    <div class="insight-icon">💡</div>
+    <p><strong>핵심 체크포인트</strong>: B2B(운수회사)로 팔 것인가, B2C(기사 개인)로 팔 것인가를 먼저 결정해야 합니다. 판매 대상이 바뀌면 제품 스펙, 가격, 유통 전략이 완전히 달라집니다.</p>
+  </div>
+</div>
+</section>
+
+<!-- Q2: 제품 시장성 검증 -->
+<section id="q2" class="qna-section">
+<div class="container">
+  <div class="q-header">
+    <span class="q-num">Q 2</span>
+    <h2 class="q-title">제품 시장성 검증을 어떻게 하나요?</h2>
+  </div>
+  <div class="q-topic">📊 공통 질문: 내 아이디어가 시장에서 통할지 검증하는 방법</div>
+
+  <div class="tag-row">
+    <span class="fw-tag">7가지 프레임워크 전체</span>
+    <span class="fw-tag">Working Backwards</span>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">🗺️ 시장성 검증 단계별 로드맵</div>
+    <div class="steps-mini">
+      <div class="step-mini"><div class="step-dot">1</div><p><strong>문제 존재 확인 (YC 검증법)</strong> — 이 문제로 고통받는 사람이 실제로 돈을 쓰고 있는가? 지금 어떻게 해결하고 있나?</p></div>
+      <div class="step-mini"><div class="step-dot">2</div><p><strong>시장 규모 추정 (6가지 모자 — ⚪ White)</strong> — TAM(전체 시장) → SAM(접근 가능 시장) → SOM(실제 목표 시장) 순서로 추정.</p></div>
+      <div class="step-mini"><div class="step-dot">3</div><p><strong>경쟁 포지션 (피터 틸 역발상)</strong> — 나는 0→1인가 1→n인가? 독점할 수 있는 작은 시장이 있는가?</p></div>
+      <div class="step-mini"><div class="step-dot">4</div><p><strong>리스크 점검 (레드팀)</strong> — 핵심 가정 3가지가 틀렸을 때 시나리오. 경쟁자가 베끼면?</p></div>
+      <div class="step-mini"><div class="step-dot">5</div><p><strong>제품 정의 (Working Backwards)</strong> — 보도자료를 쓸 수 있는가? 막히는 지점 = 아직 모르는 것.</p></div>
+    </div>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">📌 시장성 검증에서 가장 자주 하는 실수</div>
+    <p>① <strong>시장 조사 = 구글 검색</strong>으로 끝내는 것. 실제 고객 인터뷰 최소 10명 이상 필요.</p>
+    <p>② <strong>TAM만 크면 된다고 착각</strong>. 내가 실제로 접근할 수 있는 SOM이 더 중요합니다.</p>
+    <p>③ <strong>경쟁사가 없다고 좋아하는 것</strong>. 경쟁사 없음 = 시장 없음일 가능성이 높습니다.</p>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">시장성 검증 종합 프롬프트</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할]</span> 당신은 스타트업 시장 분석 전문가입니다. PMF(Product-Market Fit) 달성 전 초기 아이디어의 시장성을 검증합니다.
+
+<span class="elem">[맥락]</span> 내 아이디어: <span class="ph">[아이디어를 한 줄로]</span>
+타겟 고객: <span class="ph">[구체적으로]</span>
+현재 단계: 아이디어 단계
+
+<span class="elem">[과제]</span>
+① 이 시장의 TAM → SAM → SOM 추정 (각각 근거 포함)
+② 현재 고객이 이 문제를 어떻게 해결하고 있나? (대안 솔루션 목록)
+③ 내가 이길 수 있는 이유 vs 질 수 있는 이유 (각 3가지)
+④ 시장이 진짜 있다는 증거 3가지 (데이터·사례·인용)
+⑤ 지금 당장 할 수 있는 가장 빠른 시장 검증 방법 (돈 안 쓰고)
+
+<span class="elem">[형식]</span> 각 항목 번호 목록. ③은 표로. 마지막에 "시장성 판단: 상/중/하 + 핵심 근거"
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘.</code>
+  </div>
+</div>
+</section>
+
+<!-- Q3: 타겟 세그멘테이션 -->
+<section id="q3" class="qna-section">
+<div class="container">
+  <div class="q-header">
+    <span class="q-num">Q 3</span>
+    <h2 class="q-title">타겟 세그멘테이션을 구체적으로 할 수 있을까요?</h2>
+  </div>
+  <div class="q-topic">🎯 고객 세분화: 내 진짜 첫 고객이 누구인지 특정하는 방법</div>
+
+  <div class="tag-row">
+    <span class="fw-tag">YC 검증법</span>
+    <span class="fw-tag">가상 이사회 (Paul Graham)</span>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">🔍 타겟 세그멘테이션이란?</div>
+    <p>"20~40대 직장인"은 타겟이 아닙니다. 타겟은 <strong>"강남구 IT 회사 다니는 3년 차 마케터, 점심값 1만5천원 이상 쓰는 사람"</strong>처럼 구체적이어야 합니다.</p>
+    <p>세그멘테이션 기준 4가지: <strong>인구통계(나이·성별·지역)</strong> + <strong>심리(가치관·라이프스타일)</strong> + <strong>행동(구매 이력·사용 패턴)</strong> + <strong>상황(언제·어디서 이 문제가 생기나)</strong></p>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">📋 ChatGPT로 세그멘테이션하는 방법</div>
+    <div class="steps-mini">
+      <div class="step-mini"><div class="step-dot">1</div><p><strong>페르소나 3명 생성</strong> — "이 제품을 살 만한 사람을 3명의 구체적 인물로 만들어줘"</p></div>
+      <div class="step-mini"><div class="step-dot">2</div><p><strong>고통 강도 비교</strong> — 3명 중 누가 이 문제로 가장 많이 고통받나? 누가 가장 돈을 낼 의향이 있나?</p></div>
+      <div class="step-mini"><div class="step-dot">3</div><p><strong>첫 고객 1명 선택</strong> — "이 3명 중 MVP를 가장 먼저 써줄 1명은 누구인가?"</p></div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">타겟 세그멘테이션 프롬프트</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할]</span> 당신은 B2C 스타트업 전문 고객 세분화 컨설턴트입니다. 추상적인 타겟을 구체적인 인물로 만드는 것이 전문입니다.
+
+<span class="elem">[맥락]</span> 내 아이디어: <span class="ph">[설명]</span>
+현재 타겟 (추상적): <span class="ph">[예: "직장인", "소상공인"]</span>
+
+<span class="elem">[과제]</span>
+① 이 제품을 살 만한 구체적 고객 페르소나 3명 생성
+   각 페르소나: 이름·나이·직업·소득·일상 루틴·이 문제와의 관계·현재 해결 방법·지불 의사
+② 3명 중 고통 강도가 가장 높은 순서 + 이유
+③ 3명 중 MVP를 가장 먼저 써줄 1명 선택 + 이유
+④ 선택된 1명에게 접근하는 방법 (어디서 찾을 수 있나? 어떻게 연락하나?)
+⑤ 이 1명을 인터뷰한다면 꼭 물어볼 질문 5가지
+
+<span class="elem">[형식]</span> ①은 표로. 나머지는 번호 목록. 마지막에 "최종 타겟 1줄 정의"
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘.</code>
+  </div>
+
+  <div class="insight">
+    <div class="insight-icon">💡</div>
+    <p><strong>Paul Graham의 조언</strong>: "처음에는 타겟을 너무 좁혀서 문제라고 생각하지만, 실제로는 좁을수록 더 잘 팔린다. Facebook은 하버드 학생만 타겟으로 시작했다."</p>
+  </div>
+</div>
+</section>
+
+<!-- Q4: 회사 소개 동영상 -->
+<section id="q4" class="qna-section">
+<div class="container">
+  <div class="q-header">
+    <span class="q-num">Q 4</span>
+    <h2 class="q-title">회사 소개 동영상 제작 교육도 포함되나요?</h2>
+  </div>
+  <div class="q-topic">🎬 질문: ChatGPT를 활용한 영상 콘텐츠 기획·제작 방법</div>
+
+  <div class="tag-row">
+    <span class="fw-tag">Working Backwards</span>
+    <span class="fw-tag">프롬프트 5요소</span>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">✅ 직접 답변</div>
+    <p>이번 강의의 핵심은 "ChatGPT로 창업 아이디어 검증"이지만, <strong>회사 소개 영상 기획</strong>은 Working Backwards 프레임워크로 풀 수 있습니다. ChatGPT로 스크립트·구성·메시지를 설계하는 방법을 아래에서 정리해드립니다.</p>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">🎬 ChatGPT로 회사 소개 영상 기획하기</div>
+    <div class="steps-mini">
+      <div class="step-mini"><div class="step-dot">1</div><p><strong>핵심 메시지 1줄 도출</strong> — "이 영상을 본 뒤 시청자가 기억해야 할 단 한 가지는?"</p></div>
+      <div class="step-mini"><div class="step-dot">2</div><p><strong>타겟 시청자 명확화</strong> — "이 영상을 볼 사람은 누구인가? 투자자? 고객? 채용 후보자?"</p></div>
+      <div class="step-mini"><div class="step-dot">3</div><p><strong>스크립트 구조 설계</strong> — 문제 제시(15초) → 해결책(15초) → 신뢰 구축(15초) → CTA(15초)</p></div>
+      <div class="step-mini"><div class="step-dot">4</div><p><strong>스크립트 초안 작성</strong> — ChatGPT에게 구조와 타겟, 핵심 메시지를 주면 초안 즉시 생성</p></div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">회사 소개 영상 스크립트 프롬프트</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할]</span> 당신은 스타트업 브랜드 영상 전문 카피라이터입니다. 60초 이내 회사 소개 영상 스크립트를 쓰는 것이 전문입니다.
+
+<span class="elem">[맥락]</span> 회사명: <span class="ph">[회사명]</span>
+우리가 해결하는 문제: <span class="ph">[한 줄]</span>
+타겟 시청자: <span class="ph">[투자자/고객/채용후보자 중 선택]</span>
+영상 목적: <span class="ph">[투자 유치/고객 획득/채용]</span>
+강조하고 싶은 강점: <span class="ph">[2~3가지]</span>
+
+<span class="elem">[과제]</span>
+① 핵심 메시지 1줄 (이 영상을 본 뒤 기억해야 할 단 한 가지)
+② 60초 영상 구조 (타임스탬프 포함)
+   0~15초: 문제 제시 (시청자의 공감 유도)
+   15~35초: 해결책 (우리가 어떻게 다른가)
+   35~50초: 신뢰 구축 (수치·사례·팀 소개)
+   50~60초: CTA (다음 행동 유도)
+③ 각 섹션 스크립트 (보이스오버 텍스트)
+④ 영상에 들어갈 시각 요소 제안 (각 섹션별)
+
+<span class="elem">[형식]</span> ②③는 타임스탬프와 함께. 실제 촬영 가능한 형태로 작성.
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 핵심 메시지부터 확정한 후 스크립트 작성.</code>
+  </div>
+</div>
+</section>
+
+<!-- Q5: 반려묘 치료제 -->
+<section id="q5" class="qna-section">
+<div class="container">
+  <div class="q-header">
+    <span class="q-num">Q 5</span>
+    <h2 class="q-title">반려묘 상처 치료제 — 동물병원 데이터로 정확한 시장 추정을 하고 싶어요</h2>
+  </div>
+  <div class="q-topic">🐱 아이디어: 반려묘 전용 상처 치료제 / 목표: 정확한 TAM·SAM 추정</div>
+
+  <div class="tag-row">
+    <span class="fw-tag">6가지 모자 (⚪ White)</span>
+    <span class="fw-tag">YC 검증법</span>
+    <span class="fw-tag">피터 틸 역발상</span>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">📊 반려동물 시장 데이터 접근 방법</div>
+    <p>동물병원 데이터는 직접 구하기 어렵습니다. ChatGPT로 할 수 있는 것과 직접 조사해야 할 것을 구분하세요.</p>
+    <p><strong>ChatGPT가 도울 수 있는 것</strong>: 시장 추정 프레임워크 설계, 공개 데이터 해석, 인터뷰 질문 설계, 경쟁사 분석</p>
+    <p><strong>직접 해야 할 것</strong>: 동물병원 원장 인터뷰, 반려인 설문, 농림축산식품부 공개 통계 확인</p>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">📌 시장 추정 프레임워크 (Bottom-up 방식)</div>
+    <div class="steps-mini">
+      <div class="step-mini"><div class="step-dot">1</div><p><strong>기준점 설정</strong> — 국내 반려묘 수(약 310만 마리, 2024) × 연간 동물병원 방문율 × 상처 관련 방문 비율</p></div>
+      <div class="step-mini"><div class="step-dot">2</div><p><strong>구매 주체 확인</strong> — 동물병원에서 처방? 펫샵에서 직구매? 온라인? 채널별 시장 크기 다름</p></div>
+      <div class="step-mini"><div class="step-dot">3</div><p><strong>객단가 추정</strong> — 현재 반려묘 상처 치료에 쓰는 평균 비용 인터뷰로 확인</p></div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">반려묘 치료제 시장 추정 프롬프트</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할]</span> 당신은 반려동물 산업 전문 시장 분석가입니다. Bottom-up 방식의 시장 규모 추정이 전문입니다.
+
+<span class="elem">[맥락]</span> 제품: 반려묘 전용 상처 치료제 (가정용 외용제)
+타겟 채널: <span class="ph">[동물병원 처방 / 펫샵 / 온라인 직판 중 선택]</span>
+국내 시장 우선, 이후 아시아 확장 고려
+
+<span class="elem">[과제]</span>
+① Bottom-up 시장 추정 모델 설계
+   - 국내 반려묘 수 → 연간 상처 발생률 → 치료제 구매 전환율 → TAM
+② 동물병원 채널 vs 온라인 직판 채널 시장 크기 비교
+③ 현재 반려묘 상처 치료에 사용되는 대안 제품 목록 + 가격대
+④ 시장 추정의 핵심 불확실 변수 3가지 + 각각 어떻게 검증할지
+⑤ 동물병원 원장을 인터뷰한다면 꼭 물어봐야 할 질문 7가지
+
+<span class="elem">[형식]</span> ①은 계산식 포함. ③은 표로. ④⑤는 번호 목록.
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘. 가정은 명시적으로 표기할 것.</code>
+  </div>
+
+  <div class="insight">
+    <div class="insight-icon">💡</div>
+    <p><strong>피터 틸 관점에서 체크</strong>: "반려묘 전용"이 0→1인가요? 현재 시장에서 반려견 치료제를 반려묘에 쓰는 비중이 높다면, <strong>묘 전용 포지션 자체가 독점 카테고리</strong>가 될 수 있습니다.</p>
+  </div>
+</div>
+</section>
+
+<!-- Q6: 절차 미준수 -->
+<section id="q6" class="qna-section">
+<div class="container">
+  <div class="q-header">
+    <span class="q-num">Q 6</span>
+    <h2 class="q-title">절차 미준수로 인한 업무 효율 저하를 해결하고 싶어요</h2>
+  </div>
+  <div class="q-topic">🏢 아이디어: 조직 내 절차 준수율 향상 솔루션 / B2B SaaS or 컨설팅</div>
+
+  <div class="tag-row">
+    <span class="fw-tag">제1원칙 사고</span>
+    <span class="fw-tag">레드팀 전략</span>
+    <span class="fw-tag">가상 이사회</span>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">🔍 이 문제의 핵심 포인트</div>
+    <p>절차 미준수 문제는 거의 모든 조직에 존재합니다. 하지만 "절차 준수 솔루션" 시장은 이미 포화 상태에 가깝습니다(ERP, 체크리스트 앱, 컴플라이언스 툴).</p>
+    <p><strong>먼저 답해야 할 질문</strong>: 이 문제가 특히 심각한 업종은 어디인가? (의료? 제조? 금융?) 그 업종에서 기존 솔루션이 왜 실패하는가?</p>
+  </div>
+
+  <div class="answer-block">
+    <div class="answer-label">🔬 제1원칙으로 문제 분해하기</div>
+    <div class="steps-mini">
+      <div class="step-mini"><div class="step-dot">1</div><p><strong>왜 절차를 안 지키는가?</strong> — 모른다 / 귀찮다 / 인센티브 없다 / 절차 자체가 비효율적이다 → 원인마다 해결책이 다르다</p></div>
+      <div class="step-mini"><div class="step-dot">2</div><p><strong>지금 어떻게 해결하고 있나?</strong> — 교육, 모니터링, 처벌, 시스템 강제화 → 왜 이것들이 부족한가?</p></div>
+      <div class="step-mini"><div class="step-dot">3</div><p><strong>가장 비싼 실패 사례는?</strong> — 의료사고, 품질 불량, 규제 위반 → 가장 고통이 큰 업종 = 첫 타겟</p></div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">절차 미준수 솔루션 검증 프롬프트</div>
+    <button class="copy-btn" onclick="copyPrompt(this)">복사</button>
+    <code><span class="elem">[역할]</span> 당신은 B2B SaaS 전문 시장 분석가이자 조직 효율화 컨설턴트입니다.
+
+<span class="elem">[맥락]</span> 해결하려는 문제: 조직 내 절차 미준수로 인한 업무 효율 저하
+고려 중인 솔루션 형태: <span class="ph">[SaaS / 컨설팅 / 하드웨어 중 선택]</span>
+타겟 업종: <span class="ph">[의료 / 제조 / 금융 / 전체 중 선택]</span>
+
+<span class="elem">[과제]</span>
+① 제1원칙 분석: 절차를 안 지키는 근본 원인 5가지 (표면 원인 말고 근본 원인)
+② 원인별로 현재 시장에 존재하는 솔루션 + 왜 그 솔루션이 부족한가
+③ 가장 고통이 크고 돈을 쓸 의향이 높은 업종 TOP 3 + 근거
+④ 레드팀: 이 솔루션이 3년 내 실패하는 이유 TOP 3
+⑤ 가장 빠른 PMF 검증 방법 (돈 최소로, 3개월 이내)
+
+<span class="elem">[형식]</span> ②는 표로. 나머지 번호 목록. 마지막에 "추천 첫 타겟: 한 줄"
+
+<span class="elem">[CoT]</span> 단계별로 생각해줘.</code>
+  </div>
+
+  <div class="insight">
+    <div class="insight-icon">💡</div>
+    <p><strong>피터 틸 질문</strong>: 절차 미준수의 근본 원인이 "절차 자체가 비효율적이라서"라면, 솔루션은 "더 잘 지키게 만드는 것"이 아니라 <strong>"절차 자체를 재설계하는 것"</strong>일 수 있습니다. 이게 0→1의 기회입니다.</p>
+  </div>
+</div>
+</section>
+
+<footer>
+  <p style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:4px;">모두의창업 · 수강생 Q&amp;A</p>
+  <p>강의 프레임워크를 내 아이디어에 적용하는 방법 · © 2026</p>
+</footer>
+
+<script>
+function copyPrompt(btn) {
+  const code = btn.closest('.prompt-box').querySelector('code');
+  const text = code.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ 복사됨';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '✓ 복사됨'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
